@@ -1,0 +1,26 @@
+{
+  "name": "geojson",
+  "version": "1.0.0",
+  "description": "Convert Esri JSON/CSV to GeoJSON",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "standard src/ && npm run compile && tape test/*.js | tap-spec",
+    "compile": "babel src --out-dir ."
+  },
+  "keywords": [],
+  "author": "Ben Stoltz <bstoltz@esri.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "arcgis-to-geojson-utils": "^1.0.1",
+    "lodash": "^4.3.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.4.0"
+  }
+}
