@@ -1,2 +1,5 @@
 node_modules
 .idea
+/index.js
+
+npm-debug.log

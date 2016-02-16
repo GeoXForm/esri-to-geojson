@@ -15,7 +15,7 @@ const toGeoJSON = {}
 
 
 toGeoJSON.fromEsri = (esriJSON, options) => {
-    if (!options || !options.length) options = esriJSON.fields
+    options = convertOptions(options, esriJSON)
     let geojson = { type: 'FeatureCollection' }
     const fields = convertFields(options)
 
@@ -24,6 +24,25 @@ toGeoJSON.fromEsri = (esriJSON, options) => {
     })
 
     return geojson ? geojson : null
+}
+
+/**
+ * Handles options var with object or array.
+ *
+ * @param {object/array} inOpts - options object (or array) passed in
+ * @param {object} esriJSON - Entire JSON response
+ * @returns {array} options - array of options objects
+ * @private
+ * */
+
+function convertOptions(inOpts, esriJSON) {
+    let options = (typeof inOpts === 'object' && !_.isEmpty(inOpts)) ? [].concat(inOpts) : inOpts
+
+    if (!options || !options.length) {
+        options = esriJSON.fields
+    }
+
+    return options
 }
 
 
