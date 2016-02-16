@@ -101,23 +101,25 @@ test('when getting fields with special characters in them', (assert) => {
 
 test('Should return a proper geojson object', (assert) => {
     const fields = {
-        name: 'NAME',
-        type: 'esriFieldTypeSmallInteger',
-        alias: 'NAME',
-        domain: {
-            type: 'codedValue',
+        fields: [{
             name: 'NAME',
-            codedValues: [
-                {
-                    name: 'Name0',
-                    code: 0
-                },
-                {
-                    name: 'Name1',
-                    code: 1
-                }
-            ]
-        }
+            type: 'esriFieldTypeSmallInteger',
+            alias: 'NAME',
+            domain: {
+                type: 'codedValue',
+                name: 'NAME',
+                codedValues: [
+                    {
+                        name: 'Name0',
+                        code: 0
+                    },
+                    {
+                        name: 'Name1',
+                        code: 1
+                    }
+                ]
+            }
+        }]
     }
 
     const json = {
@@ -139,10 +141,10 @@ test('Should return a proper geojson object', (assert) => {
     assert.equal(geojson.features.length, json.features.length,
         'geojson length should equal json length')
 
-    assert.equal(geojson.features[0].properties.NAME, fields.domain.codedValues[0].name,
+    assert.equal(geojson.features[0].properties.NAME, fields.fields[0].domain.codedValues[0].name,
         'NAME should equal Name0')
 
-    assert.equal(geojson.features[1].properties.NAME, fields.domain.codedValues[1].name,
+    assert.equal(geojson.features[1].properties.NAME, fields.fields[0].domain.codedValues[1].name,
         'NAME should equal Name1')
 
     assert.end()
@@ -152,32 +154,34 @@ test('Should return a proper geojson object', (assert) => {
 
 test('Should not translate an empty field that has a domain', (assert) => {
     const fields = {
-        name: 'ST_PREFIX',
-        type: 'esriFieldTypeString',
-        alias: 'ST_PREFIX',
-        length: 3,
-        domain: {
-            type: 'codedValue',
-            name: 'Prefix',
-            codedValues: [
-                {
-                    name: 'N',
-                    code: 'N'
-                },
-                {
-                    name: 'S',
-                    code: 'S'
-                },
-                {
-                    name: 'E',
-                    code: 'E'
-                },
-                {
-                    name: 'W',
-                    code: 'W'
-                }
-            ]
-        }
+        fields: [{
+            name: 'ST_PREFIX',
+            type: 'esriFieldTypeString',
+            alias: 'ST_PREFIX',
+            length: 3,
+            domain: {
+                type: 'codedValue',
+                name: 'Prefix',
+                codedValues: [
+                    {
+                        name: 'N',
+                        code: 'N'
+                    },
+                    {
+                        name: 'S',
+                        code: 'S'
+                    },
+                    {
+                        name: 'E',
+                        code: 'E'
+                    },
+                    {
+                        name: 'W',
+                        code: 'W'
+                    }
+                ]
+            }
+        }]
     }
 
     const json = {
@@ -207,9 +211,11 @@ test('Should not translate an empty field that has a domain', (assert) => {
 
 test('converting date fields', (assert) => {
     const fields = {
-        name: 'date',
-        type: 'esriFieldTypeDate',
-        alias: 'date'
+        fields: [{
+            name: 'date',
+            type: 'esriFieldTypeDate',
+            alias: 'date'
+        }]
     }
 
     const json = {
@@ -227,70 +233,3 @@ test('converting date fields', (assert) => {
 
     assert.end()
 })
-
-
-// Can take array input as well
-
-
-test('Should be able to take array as well', (assert) => {
-    const fields = [{
-        name: 'NAME',
-        type: 'esriFieldTypeSmallInteger',
-        alias: 'NAME',
-        domain: {
-            type: 'codedValue',
-            name: 'NAME',
-            codedValues: [
-                {
-                    name: 'Name0',
-                    code: 0
-                },
-                {
-                    name: 'Name1',
-                    code: 1
-                }
-            ]
-        }
-    }]
-
-    const json = {
-        features: [{
-            attributes: {
-                NAME: 0
-            }
-        }, {
-            attributes: {
-                NAME: 1
-            }
-        }]
-    }
-    const geojson = GeoJSON.fromEsri(json, fields)
-
-    assert.is(typeof geojson, 'object',
-        'GeoJSON should be a object')
-
-    assert.equal(geojson.features.length, json.features.length,
-        'geojson length should equal json length')
-
-    assert.equal(geojson.features[0].properties.NAME, fields[0].domain.codedValues[0].name,
-        'NAME should equal Name0')
-
-    assert.equal(geojson.features[1].properties.NAME, fields[0].domain.codedValues[1].name,
-        'NAME should equal Name1')
-
-    assert.end()
-
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
