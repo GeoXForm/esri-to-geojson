@@ -16,10 +16,11 @@ const toGeoJSON = {}
 
 toGeoJSON.fromEsri = (esriJSON, options) => {
 
-    options = (!options || _.isEmpty(options)) ? esriJSON.fields : options.fields
+    if (!options) options = {}
+    if (!options.fields) options.fields = esriJSON.fields
 
     let geojson = { type: 'FeatureCollection' }
-    const fields = convertFields(options)
+    const fields = convertFields(options.fields)
 
     geojson.features = _.map(esriJSON.features, (feature) => {
         return transformFeature(feature, fields)
