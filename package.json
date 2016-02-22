@@ -15,6 +15,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "arcgis-to-geojson-utils": "^1.0.1",
+    "csv": "^0.4.6",
     "lodash": "^4.3.0"
   },
   "devDependencies": {

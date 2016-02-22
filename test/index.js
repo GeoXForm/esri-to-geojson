@@ -1,6 +1,7 @@
 'use strict'
 
 const test = require('tape')
+const csv = require('csv')
 const GeoJSON = require('../')
 const esri_json = require('./fixtures/esri_json_short.json')
 const esri_with_null = require('./fixtures/esri_json_null.json')
@@ -33,73 +34,73 @@ const date_json = require('./fixtures/esri_date.json')
 
 // When converting esri style features to GeoJSON
 
-test('Should return proper geojson object', (assert) => {
+test('Should return proper geojson object', (t) => {
     const geojson = GeoJSON.fromEsri(esri_json, {})
 
-    assert.is(typeof geojson, 'object',
+    t.is(typeof geojson, 'object',
         'geojson should return object')
 
-    assert.equal(geojson.length, esri_json.length,
+    t.equal(geojson.length, esri_json.length,
         'GeoJSON and esriJSON should be the same length')
 
-    assert.equal(geojson.features[0].geometry.coordinates.length, 2,
+    t.equal(geojson.features[0].geometry.coordinates.length, 2,
         'GeoJSON.geometry.coordinates length should equal 2')
 
-    assert.equal(geojson.features[0].geometry.type, 'Point',
+    t.equal(geojson.features[0].geometry.type, 'Point',
         'GeoJSON type should return "Point"')
 
-    assert.equal(Object.keys(geojson.features[0].properties).length, 22,
+    t.equal(Object.keys(geojson.features[0].properties).length, 22,
         'GeoJSON properties should return a count of 22')
 
-    assert.end()
+    t.end()
 })
 
-test('Should handle malformed null geometries gracefully', (assert) => {
+test('Should handle malformed null geometries gracefully', (t) => {
     const geojson = GeoJSON.fromEsri(esri_with_null, {})
 
-    assert.equal(geojson.features.length, 1,
+    t.equal(geojson.features.length, 1,
         'Malformed null geometries should return a single feature')
 
-    assert.end()
+    t.end()
 })
 
-test('Should return null when the geometry is invalid', (assert) => {
+test('Should return null when the geometry is invalid', (t) => {
     const geojson = GeoJSON.fromEsri(esri_with_invalid, {})
 
-    assert.notOk(geojson.features[0].geometry,
+    t.notOk(geojson.features[0].geometry,
         'Geometries should be null')
 
-    assert.end()
+    t.end()
 })
 
 
 // When converting fields with unix timestamps
 
-test('when converting fields with unix timestamps', (assert) => {
+test('when converting fields with unix timestamps', (t) => {
     const geojson = GeoJSON.fromEsri(date_json, null)
 
-    assert.equal(geojson.features[0].properties.last_edited_date, '2015-05-20T18:47:50.000Z',
+    t.equal(geojson.features[0].properties.last_edited_date, '2015-05-20T18:47:50.000Z',
         'should convert to ISO strings')
 
-    assert.end()
+    t.end()
 })
 
 
 // When getting fields with special characters in them
 
-test('when getting fields with special characters in them', (assert) => {
+test('when getting fields with special characters in them', (t) => {
     const geojson = GeoJSON.fromEsri(date_json, null)
 
-    assert.ok(geojson.features[0].properties.EVTRT,
+    t.ok(geojson.features[0].properties.EVTRT,
         'should replace periods and parentheses')
 
-    assert.end()
+    t.end()
 })
 
 
 // when converting fields with domains
 
-test('Should return a proper geojson object', (assert) => {
+test('Should return a proper geojson object', (t) => {
     const fields = {
         fields: [{
             name: 'NAME',
@@ -135,24 +136,24 @@ test('Should return a proper geojson object', (assert) => {
     }
     const geojson = GeoJSON.fromEsri(json, fields)
 
-    assert.is(typeof geojson, 'object',
+    t.is(typeof geojson, 'object',
         'GeoJSON should be a object')
 
-    assert.equal(geojson.features.length, json.features.length,
+    t.equal(geojson.features.length, json.features.length,
         'geojson length should equal json length')
 
-    assert.equal(geojson.features[0].properties.NAME, fields.fields[0].domain.codedValues[0].name,
+    t.equal(geojson.features[0].properties.NAME, fields.fields[0].domain.codedValues[0].name,
         'NAME should equal Name0')
 
-    assert.equal(geojson.features[1].properties.NAME, fields.fields[0].domain.codedValues[1].name,
+    t.equal(geojson.features[1].properties.NAME, fields.fields[0].domain.codedValues[1].name,
         'NAME should equal Name1')
 
-    assert.end()
+    t.end()
 
 })
 
 
-test('Should not translate an empty field that has a domain', (assert) => {
+test('Should not translate an empty field that has a domain', (t) => {
     const fields = {
         fields: [{
             name: 'ST_PREFIX',
@@ -194,22 +195,22 @@ test('Should not translate an empty field that has a domain', (assert) => {
 
     const geojson = GeoJSON.fromEsri(json, fields)
 
-    assert.is(typeof geojson, 'object',
+    t.is(typeof geojson, 'object',
         'geojson should be an object')
 
-    assert.equals(geojson.features.length, json.features.length,
+    t.equals(geojson.features.length, json.features.length,
         'geojson and json lengths should equal')
 
-    assert.equals(geojson.features[0].properties.ST_PREFIX, json.features[0].attributes.ST_PREFIX,
+    t.equals(geojson.features[0].properties.ST_PREFIX, json.features[0].attributes.ST_PREFIX,
         'ST_prefixes should match')
 
-    assert.end()
+    t.end()
 })
 
 
 // converting date fields
 
-test('converting date fields', (assert) => {
+test('converting date fields', (t) => {
     const fields = {
         fields: [{
             name: 'date',
@@ -228,8 +229,41 @@ test('converting date fields', (assert) => {
 
     const geojson = GeoJSON.fromEsri(json, fields)
 
-    assert.notOk(geojson.features[0].properties.date,
+    t.notOk(geojson.features[0].properties.date,
         'should not convert null fields to "1970"')
 
-    assert.end()
+    t.end()
+})
+
+
+/**
+ * GeoJson.fromCSV tests
+ *
+ *
+ *
+ * */
+
+test('Should return a valid geojson object', (t) => {
+    const input = '"y","x"\n"-180","90"\n"30","-60"'
+    csv.parse(input, (err, output) => {
+        const geojson = GeoJSON.fromCSV(output)
+
+        t.is(typeof geojson, 'object',
+            'geojson should return object')
+
+        t.equal(geojson.length, esri_json.length,
+            'GeoJSON and esriJSON should be the same length')
+
+        t.equal(geojson.features[0].geometry.coordinates.length, 2,
+            'GeoJSON.geometry.coordinates length should equal 2')
+
+        t.equal(geojson.features[0].geometry.type, 'Point',
+            'GeoJSON type should return "Point"')
+
+        t.equal(Object.keys(geojson.features[0].properties).length, 3,
+            'GeoJSON properties should return a count of 3')
+
+
+    })
+    t.end()
 })

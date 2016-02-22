@@ -6,10 +6,70 @@ const toGeoJSON = {}
 
 
 /**
+ * Converts csv to geojson
+ *
+ * @param {array} csv - csv file parsed using https://www.npmjs.com/package/csv
+ * @returns {object} geojson - geojson object
+ * */
+
+toGeoJSON.fromCSV = (csv) => {
+    const geojson = { type: 'FeatureCollection', features: [] }
+    let lat = null
+    let lon = null
+    let feature, headers
+
+    csv.forEach( (row, i) => {
+        if (i === 0) {
+            headers = row
+
+            // Search a whitelist of lat/longs to try to build a geometry
+
+            headers.forEach((h, i) => {
+                switch (h.trim().toLowerCase()) {
+                    case 'lat':
+                    case 'latitude':
+                    case 'latitude_deg':
+                    case 'y':
+                        lat = i + ''
+                        break
+                    case 'lon':
+                    case 'longitude':
+                    case 'longitude_deg':
+                    case 'x':
+                        lon = i + ''
+                        break
+                }
+            })
+        } else {
+            feature = { type: 'Feature', id: i, properties: {}, geometry: null }
+
+            row.forEach((col, j) => {
+                const colNum = col.replace(/,/g, '')
+                feature.properties[headers[j]] = (!isNaN(colNum)) ? parseFloat(colNum) : col
+            })
+
+            // add an object to csv data
+            feature.properties.OBJECTID = i
+
+            if (lat && lon) {
+                feature.geometry = {
+                    type: 'Point',
+                    coordinates: [parseFloat(row[parseInt(lon, 10)]), parseFloat(row[parseInt(lat, 10)])]
+                }
+            }
+            geojson.features.push(feature)
+        }
+    })
+
+    return geojson ? geojson : null
+}
+
+/**
  * Converts esri json to GeoJSON
  *
  * @param {object} esriJSON - The entire esri json response
  * @param {object} options - The fields object returned in esri json
+ * @returns {object} geojson - geojson object
  *
  * */
 
