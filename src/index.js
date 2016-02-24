@@ -14,8 +14,8 @@ const toGeoJSON = {}
 
 toGeoJSON.fromCSV = (csv) => {
     const geojson = { type: 'FeatureCollection', features: [] }
-    let lat = null
-    let lon = null
+    let latFieldIndex = null
+    let lonFieldIndex = null
     let feature, headers
 
     csv.forEach( (row, i) => {
@@ -25,19 +25,10 @@ toGeoJSON.fromCSV = (csv) => {
             // Search a whitelist of lat/longs to try to build a geometry
 
             headers.forEach((h, i) => {
-                switch (h.trim().toLowerCase()) {
-                    case 'lat':
-                    case 'latitude':
-                    case 'latitude_deg':
-                    case 'y':
-                        lat = i + ''
-                        break
-                    case 'lon':
-                    case 'longitude':
-                    case 'longitude_deg':
-                    case 'x':
-                        lon = i + ''
-                        break
+                if (['lat', 'latitude', 'latitude_deg', 'y'].indexOf(h.trim().toLowerCase()) > -1) {
+                    latFieldIndex = i + ''
+                } else if (['lon', 'longitude', 'longitude_deg', 'x'].indexOf(h.trim().toLowerCase()) > -1) {
+                    lonFieldIndex = i + ''
                 }
             })
         } else {
@@ -51,10 +42,10 @@ toGeoJSON.fromCSV = (csv) => {
             // add an object to csv data
             feature.properties.OBJECTID = i
 
-            if (lat && lon) {
+            if (latFieldIndex && lonFieldIndex) {
                 feature.geometry = {
                     type: 'Point',
-                    coordinates: [parseFloat(row[parseInt(lon, 10)]), parseFloat(row[parseInt(lat, 10)])]
+                    coordinates: [parseFloat(row[parseInt(lonFieldIndex, 10)]), parseFloat(row[parseInt(latFieldIndex, 10)])]
                 }
             }
             geojson.features.push(feature)

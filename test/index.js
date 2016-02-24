@@ -239,7 +239,10 @@ test('converting date fields', (t) => {
 /**
  * GeoJson.fromCSV tests
  *
- *
+ * When converting esri style features to GeoJSON:
+ *      Should return proper geojson object
+ *      Should handle malformed null geometries gracefully
+ *      Should return null when the geometry is invalid
  *
  * */
 
@@ -249,10 +252,7 @@ test('Should return a valid geojson object', (t) => {
         const geojson = GeoJSON.fromCSV(output)
 
         t.is(typeof geojson, 'object',
-            'geojson should return object')
-
-        t.equal(geojson.length, esri_json.length,
-            'GeoJSON and esriJSON should be the same length')
+            'Geojson should return object')
 
         t.equal(geojson.features[0].geometry.coordinates.length, 2,
             'GeoJSON.geometry.coordinates length should equal 2')
@@ -264,6 +264,48 @@ test('Should return a valid geojson object', (t) => {
             'GeoJSON properties should return a count of 3')
 
 
+    })
+    t.end()
+})
+
+test('Should handle a variety of x/y column names', (t) => {
+    const input = [
+        '"y","x"\n"-180","90"\n"30","-60"',
+        '"lat","lon"\n"-180","90"\n"30","-60"',
+        '"latitude","longitude"\n"-180","90"\n"30","-60"',
+        '"latitude_deg","longitude_deg"\n"-180","90"\n"30","-60"'
+    ]
+
+    input.forEach((inp) => {
+        csv.parse(inp, (err, output) => {
+            const geojson = GeoJSON.fromCSV(output)
+
+            t.is(typeof geojson, 'object',
+                'Geojson should return object')
+
+            t.equal(geojson.features[0].geometry.coordinates.length, 2,
+                'GeoJSON.geometry.coordinates length should equal 2')
+
+            t.equal(geojson.features[0].geometry.type, 'Point',
+                'GeoJSON type should return "Point"')
+
+            t.equal(Object.keys(geojson.features[0].properties).length, 3,
+                'GeoJSON properties should return a count of 3')
+        })
+    })
+    t.end()
+})
+
+test('Should take any number of columns', (t) => {
+    const input = '"y","x","name","sentiment"\n"-180","90","tweet1","positive"\n"30","-60","tweet2","negative"'
+    csv.parse(input, (err, output) => {
+        const geojson = GeoJSON.fromCSV(output)
+
+        t.is(typeof geojson, 'object',
+            'Geojson should return object')
+
+        t.equal(Object.keys(geojson.features[0].properties).length, 5,
+            'GeoJson should return proper number of properties')
     })
     t.end()
 })
