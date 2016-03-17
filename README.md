@@ -4,6 +4,8 @@
 Example: Convert Esri JSON to GeoJSON
 ```javascript
 const GeoJSON = require('geojson')
+const CSV = require('csv')
+const input = '"y","x"\n"-180","90"\n"30","-60"'
 
 const options = [{
         name: 'NAME',
@@ -39,4 +41,10 @@ const options = [{
 const geojson = GeoJSON.fromEsri(esriJSON, options)
 
 console.log(geojson)
+
+csv.parse(input, (err, output) => {
+    const csvGeoJSON = GeoJSON.fromCSV(output)
+    console.log(csvGeoJSON)
+})
+
 ```
