@@ -1,4 +1,4 @@
-https://travis-ci.org/koopjs/EsriToGeojson.svg?branch=master
+[![Build Status](https://travis-ci.org/koopjs/EsriToGeojson.svg?branch=master)](https://travis-ci.org/koopjs/EsriToGeojson)
 
 # GeoJSON
 *Converts Esri JSON and CSV to GeoJSON format*
