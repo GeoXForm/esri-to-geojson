@@ -8,7 +8,7 @@
 EsriToGeojson should be installed as a dependency in a Node.js project like so:
 
 ```
-npm install esritogeojson --save
+npm install esri-to-geojson --save
 ```
 
 Example: Convert Esri JSON to GeoJSON
