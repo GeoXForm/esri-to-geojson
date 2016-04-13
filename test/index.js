@@ -8,7 +8,6 @@ const esri_with_null = require('./fixtures/esri_json_null.json')
 const esri_with_invalid = require('./fixtures/esri_json_invalid.json')
 const date_json = require('./fixtures/esri_date.json')
 
-
 /**
  *  GeoJSON.fromEsri tests
  *
@@ -263,9 +262,8 @@ test('Should return a valid geojson object', (t) => {
         t.equal(Object.keys(geojson.features[0].properties).length, 3,
             'GeoJSON properties should return a count of 3')
 
-
+        t.end()
     })
-    t.end()
 })
 
 test('Should handle a variety of x/y column names', (t) => {
@@ -291,6 +289,8 @@ test('Should handle a variety of x/y column names', (t) => {
 
             t.equal(Object.keys(geojson.features[0].properties).length, 3,
                 'GeoJSON properties should return a count of 3')
+
+
         })
     })
     t.end()
@@ -306,6 +306,7 @@ test('Should take any number of columns', (t) => {
 
         t.equal(Object.keys(geojson.features[0].properties).length, 5,
             'GeoJson should return proper number of properties')
+
+        t.end()
     })
-    t.end()
 })
