@@ -3,8 +3,16 @@
 # GeoJSON
 *Converts Esri JSON and CSV to GeoJSON format*
 
+## Install
+
+EsriToGeojson should be installed as a dependency in a Node.js project like so:
+
+```
+npm install esritogeojson --save
+```
+
 Example: Convert Esri JSON to GeoJSON
-```javascript
+```js
 const GeoJSON = require('geojson')
 const CSV = require('csv')
 const input = '"y","x"\n"-180","90"\n"30","-60"'
