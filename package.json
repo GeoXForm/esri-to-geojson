@@ -1,6 +1,6 @@
 {
   "name": "esri-to-geojson",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert Esri JSON/CSV to GeoJSON",
   "main": "index.js",
   "directories": {
