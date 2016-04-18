@@ -2,6 +2,9 @@
   "name": "esri-to-geojson",
   "version": "1.0.1",
   "description": "Convert Esri JSON/CSV to GeoJSON",
+  "bugs": {
+    "url": "https://github.com/koopjs/esri-to-geojson/issues"
+  },
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -10,7 +13,14 @@
     "test": "standard src/ && npm run compile && tape test/*.js | tap-spec",
     "compile": "babel src --out-dir ."
   },
-  "keywords": [],
+  "homepage": "https://github.com/koopjs/esri-to-geojson",
+  "keywords": [
+    "koop",
+    "geojson",
+    "csv",
+    "esri json",
+    "conversion"
+  ],
   "author": "Ben Stoltz <bstoltz@esri.com>",
   "license": "Apache-2.0",
   "dependencies": {
