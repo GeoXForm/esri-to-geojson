@@ -36,7 +36,7 @@ toGeoJSON.fromCSV = (csv) => {
 
             row.forEach((col, j) => {
                 const colNum = col.replace(/,/g, '')
-                feature.properties[headers[j]] = (!isNaN(colNum)) ? parseFloat(colNum) : col
+                feature.properties[convertFieldName(headers[j])] = (!isNaN(colNum)) ? parseFloat(colNum) : col
             })
 
             // add an object to csv data
@@ -110,7 +110,8 @@ function convertFields(infields) {
 
 function convertFieldName(name) {
     const regex = new RegExp(/\.|\(|\)/g)
-    return name.replace(regex, '')
+    const spaceRegex = new RegExp(/\s/g)
+    return name.replace(regex, '').replace(spaceRegex, '_')
 }
 
 
