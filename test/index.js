@@ -266,6 +266,20 @@ test('Should return a valid geojson object', (t) => {
     })
 })
 
+test('Should handle invalid geometry', (t) => {
+    const input = '"fakeY","fakeX"\n"-180","90"\n"30","-60"'
+    csv.parse(input, (err, output) => {
+        const geojson = GeoJSON.fromCSV(output)
+
+        t.is(typeof geojson, 'object',
+            'geojson should return object')
+
+        t.notOk(geojson.features[0].geometry, 'geometries should be null')
+
+        t.end()
+    })
+})
+
 test('Should take any number of columns', (t) => {
     const input = '"y","x","name","sentiment"\n"-180","90","tweet1","positive"\n"30","-60","tweet2","negative"'
     csv.parse(input, (err, output) => {

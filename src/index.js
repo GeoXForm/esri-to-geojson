@@ -14,13 +14,13 @@ const toGeoJSON = {}
 
 toGeoJSON.fromCSV = (csv) => {
     const geojson = { type: 'FeatureCollection' }
-    const headers = csvHeaders(csv.shift())
+    const fieldNames = csvFieldNames(csv.shift())
 
     geojson.features = _.map(csv, (feat, key) => {
         const feature = { type: 'Feature', id: key }
-        feature.properties = constructProps(headers, feat)
+        feature.properties = constructProps(fieldNames, feat)
         feature.properties.OBJECTID = key
-        feature.geometry = convertCSVGeom(headers, feat)
+        feature.geometry = convertCSVGeom(fieldNames, feat)
         return feature
     })
 
@@ -28,51 +28,84 @@ toGeoJSON.fromCSV = (csv) => {
 }
 
 /**
- * Parse array of headers and sanitize them
+ * Parse array of field names and sanitize them
  *
- * @param {array} inFields - array of headers
- * @returns {array} headers - array of sanitized headers
+ * @param {array} inFields - array of field names
+ * @returns {array} fieldNames - array of sanitized field Names
  */
 
-function csvHeaders(inFields) {
-    const headers = []
+function csvFieldNames(inFields) {
+    const fieldNames = []
      _.each(inFields, (field) => {
-        headers.push(convertFieldName(field))
+        fieldNames.push(convertFieldName(field))
     })
-    return headers
+    return fieldNames
 }
 
 /**
  * Convert CSV geom to geojson
  *
- * @param {array} headers - array of headers
+ * @param {array} fieldNames - array of field names
  * @param {array} feature - individual feature
  * @returns {object} geometry - geometry object
  */
 
-function convertCSVGeom(headers, feature) {
+function convertCSVGeom(fieldNames, feature) {
     const geometry = {type: 'Point', coordinates: []}
-    _.each(headers, (header, key) => {
-        if (['lat', 'latitude', 'latitude_deg', 'y'].indexOf(header.trim().toLowerCase()) > -1) {
+    _.each(fieldNames, (fieldName, key) => {
+        if (checkForLat(fieldName)) {
             geometry.coordinates.unshift(parseFloat(feature[key]))
-        } else if (['lon', 'longitude', 'longitude_deg', 'x'].indexOf(header.trim().toLowerCase()) > -1) {
+        } else if (checkForLon(fieldName)) {
             geometry.coordinates.unshift(parseFloat(feature[key]))
         }
     })
-    return geometry
+    return validGeometry(geometry) ? geometry : null
+}
+
+/**
+ * Check to see if lat is present
+ *
+ * @param {string} fieldName - fieldName to Check
+ * @returns {boolean} present - whether or not lat / lon options are present
+ */
+
+function checkForLat(fieldName) {
+    return _.includes(['lat', 'latitude', 'latitude_deg', 'y'], fieldName.trim().toLowerCase())
+}
+
+/**
+ * Check to see if lon is present
+ *
+ * @param {string} fieldName - fieldName to Check
+ * @returns {boolean} present - whether or not lat / lon options are present
+ */
+
+function checkForLon(fieldName) {
+    return _.includes(['lon', 'longitude', 'longitude_deg', 'x'], fieldName.trim().toLowerCase())
+}
+
+/**
+ * Check to see if geometry object is valid
+ *
+ * @param {object} geometry - built geometry object
+ * @return {boolean} validGeom - whether or not geom is valid
+ */
+
+function validGeometry(geometry) {
+    return geometry.coordinates.length === 2 ? true : false
 }
 
 /**
  * Covert fields into properties object
- * @param {array} headers - array of headers
+ * @param {array} fieldNames - array of field names
  * @param {array} feature - individual feature
  * @returns {object} properties - property object
  */
 
-function constructProps(headers, feature) {
+function constructProps(fieldNames, feature) {
     const properties = {}
-    _.each(headers, (header, key) => {
-        properties[header] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
+    _.each(fieldNames, (fieldName, key) => {
+        properties[fieldName] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
     })
     return properties
 }
