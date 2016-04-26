@@ -13,47 +13,70 @@ const toGeoJSON = {}
  * */
 
 toGeoJSON.fromCSV = (csv) => {
-    const geojson = { type: 'FeatureCollection', features: [] }
-    let latFieldIndex = null
-    let lonFieldIndex = null
-    let feature, headers
+    const geojson = { type: 'FeatureCollection' }
+    const headers = csvHeaders(csv.shift())
 
-    csv.forEach( (row, i) => {
-        if (i === 0) {
-            headers = row
-
-            // Search a whitelist of lat/longs to try to build a geometry
-
-            headers.forEach((h, i) => {
-                if (['lat', 'latitude', 'latitude_deg', 'y'].indexOf(h.trim().toLowerCase()) > -1) {
-                    latFieldIndex = i + ''
-                } else if (['lon', 'longitude', 'longitude_deg', 'x'].indexOf(h.trim().toLowerCase()) > -1) {
-                    lonFieldIndex = i + ''
-                }
-            })
-        } else {
-            feature = { type: 'Feature', id: i, properties: {}, geometry: null }
-
-            row.forEach((col, j) => {
-                const colNum = col.replace(/,/g, '')
-                feature.properties[convertFieldName(headers[j])] = (!isNaN(colNum)) ? parseFloat(colNum) : col
-            })
-
-            // add an object to csv data
-            feature.properties.OBJECTID = i
-
-            if (latFieldIndex && lonFieldIndex) {
-                feature.geometry = {
-                    type: 'Point',
-                    coordinates: [parseFloat(row[parseInt(lonFieldIndex, 10)]), parseFloat(row[parseInt(latFieldIndex, 10)])]
-                }
-            }
-            geojson.features.push(feature)
-        }
+    geojson.features = _.map(csv, (feat, key) => {
+        const feature = { type: 'Feature', id: key }
+        feature.properties = constructProps(headers, feat)
+        feature.properties.OBJECTID = key
+        feature.geometry = convertCSVGeom(headers, feat)
+        return feature
     })
 
     return geojson ? geojson : null
 }
+
+/**
+ * Parse array of headers and sanitize them
+ *
+ * @param {array} inFields - array of headers
+ * @returns {array} headers - array of sanitized headers
+ */
+
+function csvHeaders(inFields) {
+    const headers = []
+     _.each(inFields, (field) => {
+        headers.push(convertFieldName(field))
+    })
+    return headers
+}
+
+/**
+ * Convert CSV geom to geojson
+ *
+ * @param {array} headers - array of headers
+ * @param {array} feature - individual feature
+ * @returns {object} geometry - geometry object
+ */
+
+function convertCSVGeom(headers, feature) {
+    const geometry = {type: 'Point', coordinates: []}
+    _.each(headers, (header, key) => {
+        if (['lat', 'latitude', 'latitude_deg', 'y'].indexOf(header.trim().toLowerCase()) > -1) {
+            geometry.coordinates.unshift(parseFloat(feature[key]))
+        } else if (['lon', 'longitude', 'longitude_deg', 'x'].indexOf(header.trim().toLowerCase()) > -1) {
+            geometry.coordinates.unshift(parseFloat(feature[key]))
+        }
+    })
+    return geometry
+}
+
+/**
+ * Covert fields into properties object
+ * @param {array} headers - array of headers
+ * @param {array} feature - individual feature
+ * @returns {object} properties - property object
+ */
+
+function constructProps(headers, feature) {
+    const properties = {}
+    _.each(headers, (header, key) => {
+        properties[header] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
+    })
+    return properties
+}
+
 
 /**
  * Converts esri json to GeoJSON
@@ -63,7 +86,6 @@ toGeoJSON.fromCSV = (csv) => {
  * @returns {object} geojson - geojson object
  *
  * */
-
 
 toGeoJSON.fromEsri = (esriJSON, options) => {
 
