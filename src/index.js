@@ -36,7 +36,7 @@ toGeoJSON.fromCSV = (csv) => {
 
 function csvFieldNames(inFields) {
     const fieldNames = []
-     _.each(inFields, (field) => {
+     _.map(inFields, (field) => {
         fieldNames.push(convertFieldName(field))
     })
     return fieldNames
@@ -51,12 +51,12 @@ function csvFieldNames(inFields) {
  */
 
 function convertCSVGeom(fieldNames, feature) {
-    const geometry = {type: 'Point', coordinates: []}
-    _.each(fieldNames, (fieldName, key) => {
-        if (checkForLat(fieldName)) {
-            geometry.coordinates.unshift(parseFloat(feature[key]))
-        } else if (checkForLon(fieldName)) {
-            geometry.coordinates.unshift(parseFloat(feature[key]))
+    const geometry = { type: 'Point', coordinates: [null, null] }
+    _.map(fieldNames, (fieldName, i) => {
+        if (isLongitudeField(fieldName)) {
+            geometry.coordinates[0] = parseFloat(feature.slice(i))
+        } else if (isLatitudeField(fieldName)) {
+            geometry.coordinates[1] = parseFloat(feature.slice(i))
         }
     })
     return validGeometry(geometry) ? geometry : null
@@ -69,7 +69,7 @@ function convertCSVGeom(fieldNames, feature) {
  * @returns {boolean} present - whether or not lat / lon options are present
  */
 
-function checkForLat(fieldName) {
+function isLatitudeField(fieldName) {
     return _.includes(['lat', 'latitude', 'latitude_deg', 'y'], fieldName.trim().toLowerCase())
 }
 
@@ -80,7 +80,7 @@ function checkForLat(fieldName) {
  * @returns {boolean} present - whether or not lat / lon options are present
  */
 
-function checkForLon(fieldName) {
+function isLongitudeField(fieldName) {
     return _.includes(['lon', 'longitude', 'longitude_deg', 'x'], fieldName.trim().toLowerCase())
 }
 
@@ -92,7 +92,7 @@ function checkForLon(fieldName) {
  */
 
 function validGeometry(geometry) {
-    return geometry.coordinates.length === 2 ? true : false
+    return geometry.coordinates.length === 2 && (geometry.coordinates[0] && geometry.coordinates[1]) ? true : false
 }
 
 /**
@@ -165,8 +165,7 @@ function convertFields(infields) {
 
 function convertFieldName(name) {
     const regex = new RegExp(/\.|\(|\)/g)
-    const spaceRegex = new RegExp(/\s/g)
-    return name.replace(regex, '').replace(spaceRegex, '_')
+    return name.replace(regex, '').replace(/\s/g, '_')
 }
 
 
