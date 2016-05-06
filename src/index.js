@@ -14,9 +14,9 @@ const toGeoJSON = {}
 
 toGeoJSON.fromCSV = (csv) => {
     const geojson = { type: 'FeatureCollection' }
-    const fieldNames = csvFieldNames(csv.shift())
-
-    geojson.features = _.map(csv, (feat, key) => {
+    const fieldNames = csvFieldNames(csv[0])
+    const features = csv.slice(1)
+    geojson.features = _.map(features, (feat, key) => {
         const feature = { type: 'Feature', id: key }
         feature.properties = constructProps(fieldNames, feat)
         feature.properties.OBJECTID = key
