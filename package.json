@@ -9,6 +9,10 @@
   "directories": {
     "test": "test"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koopjs/esri-to-geojson.git"
+  },
   "scripts": {
     "test": "standard src/ && npm run compile && tape test/*.js | tap-spec",
     "compile": "babel src --out-dir ."
