@@ -4,7 +4,6 @@ const arcgisToGeoJSON = require('arcgis-to-geojson-utils').arcgisToGeoJSON
 const _ = require('lodash')
 const toGeoJSON = {}
 
-
 /**
  * Converts csv to geojson
  *
@@ -13,47 +12,99 @@ const toGeoJSON = {}
  * */
 
 toGeoJSON.fromCSV = (csv) => {
-    const geojson = { type: 'FeatureCollection', features: [] }
-    let latFieldIndex = null
-    let lonFieldIndex = null
-    let feature, headers
-
-    csv.forEach( (row, i) => {
-        if (i === 0) {
-            headers = row
-
-            // Search a whitelist of lat/longs to try to build a geometry
-
-            headers.forEach((h, i) => {
-                if (['lat', 'latitude', 'latitude_deg', 'y'].indexOf(h.trim().toLowerCase()) > -1) {
-                    latFieldIndex = i + ''
-                } else if (['lon', 'longitude', 'longitude_deg', 'x'].indexOf(h.trim().toLowerCase()) > -1) {
-                    lonFieldIndex = i + ''
-                }
-            })
-        } else {
-            feature = { type: 'Feature', id: i, properties: {}, geometry: null }
-
-            row.forEach((col, j) => {
-                const colNum = col.replace(/,/g, '')
-                feature.properties[headers[j]] = (!isNaN(colNum)) ? parseFloat(colNum) : col
-            })
-
-            // add an object to csv data
-            feature.properties.OBJECTID = i
-
-            if (latFieldIndex && lonFieldIndex) {
-                feature.geometry = {
-                    type: 'Point',
-                    coordinates: [parseFloat(row[parseInt(lonFieldIndex, 10)]), parseFloat(row[parseInt(latFieldIndex, 10)])]
-                }
-            }
-            geojson.features.push(feature)
-        }
+    const geojson = { type: 'FeatureCollection' }
+    const fieldNames = csvFieldNames(csv[0])
+    const features = csv.slice(1)
+    geojson.features = _.map(features, (feat, key) => {
+        const feature = { type: 'Feature', id: key }
+        feature.properties = constructProps(fieldNames, feat)
+        feature.properties.OBJECTID = key
+        feature.geometry = convertCSVGeom(fieldNames, feat)
+        return feature
     })
 
     return geojson ? geojson : null
 }
+
+/**
+ * Parse array of field names and sanitize them
+ *
+ * @param {array} inFields - array of field names
+ * @returns {array} fieldNames - array of sanitized field Names
+ */
+
+function csvFieldNames (inFields) {
+    const fieldNames = _.map(inFields, (field) => {
+        return convertFieldName(field)
+    })
+    return fieldNames
+}
+
+/**
+ * Convert CSV geom to geojson
+ *
+ * @param {array} fieldNames - array of field names
+ * @param {array} feature - individual feature
+ * @returns {object} geometry - geometry object
+ */
+
+function convertCSVGeom (columns, row) {
+    const geometry = _.reduce(columns, (tempGeom, colName, i) => {
+        if (isLongitudeField(colName)) tempGeom.coordinates[0] = parseFloat(row[i])
+        else if (isLatitudeField(colName)) tempGeom.coordinates[1] = parseFloat(row[i])
+        return tempGeom
+    }, { type: 'Point', coordinates: [null, null] })
+    return validGeometry(geometry) ? geometry : null
+}
+
+/**
+ * Check to see if lat is present
+ *
+ * @param {string} fieldName - fieldName to Check
+ * @returns {boolean} present - whether or not lat / lon options are present
+ */
+
+function isLatitudeField(fieldName) {
+    return _.includes(['lat', 'latitude', 'latitude_deg', 'y'], fieldName.trim().toLowerCase())
+}
+
+/**
+ * Check to see if lon is present
+ *
+ * @param {string} fieldName - fieldName to Check
+ * @returns {boolean} present - whether or not lat / lon options are present
+ */
+
+function isLongitudeField(fieldName) {
+    return _.includes(['lon', 'longitude', 'longitude_deg', 'x'], fieldName.trim().toLowerCase())
+}
+
+/**
+ * Check to see if geometry object is valid
+ *
+ * @param {object} geometry - built geometry object
+ * @return {boolean} validGeom - whether or not geom is valid
+ */
+
+function validGeometry(geometry) {
+    return geometry.coordinates.length === 2 && (geometry.coordinates[0] && geometry.coordinates[1]) ? true : false
+}
+
+/**
+ * Covert fields into properties object
+ * @param {array} fieldNames - array of field names
+ * @param {array} feature - individual feature
+ * @returns {object} properties - property object
+ */
+
+function constructProps(fieldNames, feature) {
+    const properties = _.reduce(fieldNames, (tempProps, fieldName, key) => {
+        tempProps[fieldName] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
+        return tempProps
+    }, {})
+    return properties
+}
+
 
 /**
  * Converts esri json to GeoJSON
@@ -63,7 +114,6 @@ toGeoJSON.fromCSV = (csv) => {
  * @returns {object} geojson - geojson object
  *
  * */
-
 
 toGeoJSON.fromEsri = (esriJSON, options) => {
 
@@ -110,7 +160,7 @@ function convertFields(infields) {
 
 function convertFieldName(name) {
     const regex = new RegExp(/\.|\(|\)/g)
-    return name.replace(regex, '')
+    return name.replace(regex, '').replace(/\s/g, '_')
 }
 
 

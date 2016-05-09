@@ -2,14 +2,12 @@
 
 # esri-to-geojson
 *Converts Esri JSON and CSV to GeoJSON format*
+Outside of solely translating geometry this project does make changes to
+fields.
+* decoding domains
+* creating x & y fields from CSVs
+* Translate date fields to be human readable text
 
-## Install
-
-EsriToGeojson should be installed as a dependency in a Node.js project like so:
-
-```
-npm install esri-to-geojson --save
-```
 
 Example: Convert Esri JSON to GeoJSON
 ```js
@@ -58,3 +56,38 @@ csv.parse(input, (err, output) => {
 })
 
 ```
+
+## Set up
+
+esri-to-geojson should be installed as a dependency in a Node.js project like so:
+
+- `npm install esri-to-geojson --save`
+
+
+## Development
+
+### Install dependencies
+- `npm install`
+
+### Transpile to ES5
+- `npm compile`
+
+### Test
+- `npm test`
+
+
+## API
+### `GeoJSON.fromEsri(esriJSON, options)`
+Converts Esri JSON to GeoJSON
+- esriJSON: the entire Esri JSON object
+- Options:
+``` javascript
+{
+    fields: array // fields object returned from esri json
+}
+
+```
+
+### `GeoJSON.fromCSV(csv)`
+Converts CSV to GeoJSON
+- csv: csv file parsed using https://www.npmjs.com/package/csv
