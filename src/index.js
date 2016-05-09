@@ -4,7 +4,6 @@ const arcgisToGeoJSON = require('arcgis-to-geojson-utils').arcgisToGeoJSON
 const _ = require('lodash')
 const toGeoJSON = {}
 
-
 /**
  * Converts csv to geojson
  *
@@ -34,10 +33,9 @@ toGeoJSON.fromCSV = (csv) => {
  * @returns {array} fieldNames - array of sanitized field Names
  */
 
-function csvFieldNames(inFields) {
-    const fieldNames = []
-     _.map(inFields, (field) => {
-        fieldNames.push(convertFieldName(field))
+function csvFieldNames (inFields) {
+    const fieldNames = _.map(inFields, (field) => {
+        return convertFieldName(field)
     })
     return fieldNames
 }
@@ -50,15 +48,12 @@ function csvFieldNames(inFields) {
  * @returns {object} geometry - geometry object
  */
 
-function convertCSVGeom(fieldNames, feature) {
-    const geometry = { type: 'Point', coordinates: [null, null] }
-    _.map(fieldNames, (fieldName, i) => {
-        if (isLongitudeField(fieldName)) {
-            geometry.coordinates[0] = parseFloat(feature.slice(i))
-        } else if (isLatitudeField(fieldName)) {
-            geometry.coordinates[1] = parseFloat(feature.slice(i))
-        }
-    })
+function convertCSVGeom (columns, row) {
+    const geometry = _.reduce(columns, (tempGeom, colName, i) => {
+        if (isLongitudeField(colName)) tempGeom.coordinates[0] = parseFloat(row[i])
+        else if (isLatitudeField(colName)) tempGeom.coordinates[1] = parseFloat(row[i])
+        return tempGeom
+    }, { type: 'Point', coordinates: [null, null] })
     return validGeometry(geometry) ? geometry : null
 }
 

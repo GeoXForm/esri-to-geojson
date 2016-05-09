@@ -249,6 +249,7 @@ test('Should return a valid geojson object', (t) => {
     const input = '"y","x"\n"-180","90"\n"30","-60"'
     csv.parse(input, (err, output) => {
         const geojson = GeoJSON.fromCSV(output)
+        console.log(geojson.features[0].geometry)
 
         t.is(typeof geojson, 'object',
             'Geojson should return object')
@@ -299,7 +300,7 @@ test('Should sanitize illegal characters', (t) => {
     const input = '"y","x","name.Says","sentiment opinion"\n"-180","90","tweet1","positive"\n"30","-60","tweet2","negative"'
     csv.parse(input, (err, output) => {
         const geojson = GeoJSON.fromCSV(output)
-        
+
         t.is(typeof geojson, 'object',
             'Geojson should return object')
 
