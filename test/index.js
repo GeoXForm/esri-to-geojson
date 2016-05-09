@@ -249,7 +249,6 @@ test('Should return a valid geojson object', (t) => {
     const input = '"y","x"\n"-180","90"\n"30","-60"'
     csv.parse(input, (err, output) => {
         const geojson = GeoJSON.fromCSV(output)
-        console.log(geojson.features[0].geometry)
 
         t.is(typeof geojson, 'object',
             'Geojson should return object')

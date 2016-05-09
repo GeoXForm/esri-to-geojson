@@ -98,10 +98,10 @@ function validGeometry(geometry) {
  */
 
 function constructProps(fieldNames, feature) {
-    const properties = {}
-    _.each(fieldNames, (fieldName, key) => {
-        properties[fieldName] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
-    })
+    const properties = _.reduce(fieldNames, (tempProps, fieldName, key) => {
+        tempProps[fieldName] = (!isNaN(feature[key])) ? parseFloat(feature[key]) : feature[key]
+        return tempProps
+    }, {})
     return properties
 }
 
