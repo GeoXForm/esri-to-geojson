@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.3] - 2017-03-28
+### Fixed
+* Do not overwrite OID field if it exists
 
 ## [1.0.2] - 2016-05-09
 ### Changed

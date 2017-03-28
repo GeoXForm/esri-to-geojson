@@ -18,7 +18,7 @@ toGeoJSON.fromCSV = (csv) => {
   geojson.features = _.map(features, (feat, key) => {
     const feature = { type: 'Feature', id: key }
     feature.properties = constructProps(fieldNames, feat)
-    feature.properties.OBJECTID = key
+    if (feature.properties.OBJECTID === undefined) feature.properties.OBJECTID = key
     feature.geometry = convertCSVGeom(fieldNames, feat)
     return feature
   })
