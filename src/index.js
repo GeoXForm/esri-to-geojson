@@ -1,6 +1,6 @@
 'use strict'
 
-const arcgisToGeoJSON = require('arcgis-to-geojson-utils').arcgisToGeoJSON
+const arcgisToGeoJSON = require('@esri/arcgis-to-geojson-utils').arcgisToGeoJSON
 const _ = require('lodash')
 const toGeoJSON = {}
 
