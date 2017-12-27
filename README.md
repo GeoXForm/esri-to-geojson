@@ -1,9 +1,12 @@
 [![Build Status](https://travis-ci.org/GeoXForm/esri-to-geojson.svg?branch=master)](https://travis-ci.org/GeoXForm/esri-to-geojson)
 
 # esri-to-geojson
+
 *Converts Esri JSON and CSV to GeoJSON format*
-Outside of solely translating geometry this project does make changes to
-fields.
+
+Besides translating geometries this project **make changes** to
+actual field values.
+
 * decoding domains
 * creating x & y fields from CSVs
 * Translate date fields to be human readable text

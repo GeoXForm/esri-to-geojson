@@ -1,6 +1,6 @@
 {
   "name": "esri-to-geojson",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Convert Esri JSON/CSV to GeoJSON",
   "bugs": {
     "url": "https://github.com/GeoXForm/esri-to-geojson/issues"
