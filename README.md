@@ -14,7 +14,7 @@ actual field values.
 
 Example: Convert Esri JSON to GeoJSON
 ```js
-const GeoJSON = require('geojson')
+const GeoJSON = require('esri-to-geojson')
 const CSV = require('csv')
 const input = '"y","x"\n"-180","90"\n"30","-60"'
 
